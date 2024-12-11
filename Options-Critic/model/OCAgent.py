@@ -10,7 +10,7 @@ from channel import OptionSideChannel
 from collections import deque
 np.bool = bool
 
-
+# Options-Critic agent
 class OptionsCriticAgent(nn.Module):
     def __init__(self, num_options, num_actions):
         super().__init__()
