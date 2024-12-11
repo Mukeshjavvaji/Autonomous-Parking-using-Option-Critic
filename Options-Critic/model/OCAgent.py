@@ -46,9 +46,7 @@ class OptionsCriticAgent(nn.Module):
             with torch.no_grad():
                 option_probs = self.policy_over_options(input[55:])
             option = np.random.choice([0,1,2,3], p=option_probs.detach().numpy())
-            # option = np.argmax(option_probs.detach().numpy())
             self.current_option = option
-            # print(self.options[option])
         else:
             one_hot_encoded_option = self.get_one_hot_encoding(self.current_option, self.num_options)
             with torch.no_grad():
@@ -60,9 +58,7 @@ class OptionsCriticAgent(nn.Module):
                     option = np.random.choice([0,1,2,3], p=option_probs.detach().numpy())
                 else:
                     option = np.random.choice([0,1,2,3])
-                # option = np.argmax(option_probs.detach().numpy())
                 self.current_option = option
-                # print(self.options[option])
 
         one_hot_encoded_option = self.get_one_hot_encoding(self.current_option, self.num_options)
         output = self.sub_policy(torch.tensor(np.concatenate((input[:55].detach().numpy(), one_hot_encoded_option))).to(torch.float32))
@@ -78,8 +74,8 @@ class OptionsCriticAgent(nn.Module):
         return loss.item()
     
     def calculate_noise(self, predicted_action):
-    # Gaussian noise with mean 0 and adjustable standard deviation
-        noise_std = 0.2  # Adjust this value based on exploration needs
+        # Gaussian noise with mean 0 and adjustable standard deviation
+        noise_std = 0.2 
         return torch.normal(mean=0.0, std=noise_std, size=predicted_action.shape).to(predicted_action.device)
 
     def update_sub_policy(self, predicted_action, advantage, sp_reward):
@@ -140,16 +136,10 @@ class ReplayBuffer:
 
 def get_action_tuple(action):
     continuous_actions = np.array([[action[0], action[1]]])  
-    # discrete_actions = np.array([[action[2]]])
-    # if discrete_actions[0][0] > 0:
-    #     discrete_actions[0][0] = 1
-    # else:
-    #     discrete_actions[0][0] = 0
     return ActionTuple(continuous=continuous_actions)
 
 def back_propagation(agent, state, action, reward, next_state, option, poo_reward, iop_reward, termination_reward, time_step):
     one_hot_encoded_option = agent.get_one_hot_encoding(option, agent.num_options)
-    # action = agent.forward(state)
     with torch.no_grad():
         q_omega_value = agent.Qomega(torch.tensor(np.concatenate((state[55:].detach().numpy(), one_hot_encoded_option))).to(torch.float32))
         q_u_value = agent.Qu(torch.tensor(np.concatenate((state[:55].detach().numpy(), one_hot_encoded_option, action.detach().numpy()))).to(torch.float32))
@@ -272,36 +262,29 @@ if __name__ == '__main__':
         env.reset()
 
         if len(all_rewards) > 5000:
-            save_loss_vals(q_omega_losses, "q_omega23.txt")
+            save_loss_vals(q_omega_losses, "q_omega.txt")
             q_omega_losses = []
-            save_loss_vals(q_u_losses, "q_u23.txt")
+            save_loss_vals(q_u_losses, "q_u.txt")
             q_u_losses = []
-            save_loss_vals(poo_losses, "poo23.txt")
+            save_loss_vals(poo_losses, "poo.txt")
             poo_losses = []
-            save_loss_vals(sp_losses, "sp23.txt")
+            save_loss_vals(sp_losses, "sp.txt")
             sp_losses = []
-            save_loss_vals(tf_losses, "tf23.txt")
+            save_loss_vals(tf_losses, "tf.txt")
             tf_losses = []
-            save_loss_vals(all_rewards, "rewards23.txt")
+            save_loss_vals(all_rewards, "rewards.txt")
             all_rewards = []
-            save_loss_vals(ep_poo_rewards, "poo_rewards23.txt")
+            save_loss_vals(ep_poo_rewards, "poo_rewards.txt")
             ep_poo_rewards = []
-            save_loss_vals(ep_iop_rewards, "iop_rewards23.txt")
+            save_loss_vals(ep_iop_rewards, "iop_rewards.txt")
             ep_iop_rewards = []
-            save_loss_vals(ep_termination_rewards, "termination_rewards23.txt")
+            save_loss_vals(ep_termination_rewards, "termination_rewards.txt")
             ep_termination_rewards = []
 
-    # agent.eval()
-    # dummy_input = torch.randn(1, 58)
-    # onnx_filename = "OCmodel.onnx"
-    # torch.onnx.export(agent, dummy_input, onnx_filename,
-    #               input_names=["input"],  
-    #               output_names=["output"],  
-    #               opset_version=12)  
         if episode % 10 == 0:
-            torch.save(agent.state_dict(), "/Users/mukeshjavvaji/Documents/Academics/RL and SDM/Project/AutonomousParking-main/Assets/MLAgents/Options-Critic/model/trial_model1.pt")
+            torch.save(agent.state_dict(), "/Users/mukeshjavvaji/Documents/Academics/RL and SDM/Project/AutonomousParking-main/Assets/MLAgents/Options-Critic/model/model1.pt")
         if episode % 15 == 0:
-            torch.save(agent.state_dict(), "/Users/mukeshjavvaji/Documents/Academics/RL and SDM/Project/AutonomousParking-main/Assets/MLAgents/Options-Critic/model/trial_model2.pt")
+            torch.save(agent.state_dict(), "/Users/mukeshjavvaji/Documents/Academics/RL and SDM/Project/AutonomousParking-main/Assets/MLAgents/Options-Critic/model/model2.pt")
     
 
 
